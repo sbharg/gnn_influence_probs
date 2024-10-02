@@ -2,6 +2,10 @@ graphs/
 .DS_Store
 .python-version
 
+datasets/real/higgs.mtx
+datasets/synthetic/er_10000_02.mtx
+datasets/synthetic/er_10000_005.mtx
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
