@@ -2,9 +2,20 @@ graphs/
 .DS_Store
 .python-version
 
-datasets/real/higgs.mtx
-datasets/synthetic/er_10000_02.mtx
-datasets/synthetic/er_10000_005.mtx
+datasets/real/higgs/
+datasets/synthetic/er_10000_02/
+datasets/synthetic/er_10000_005/
+
+datasets/real/higgs/diffusions/
+datasets/real/ego-facebook/diffusions/
+datasets/real/ego-twitter/diffusions/
+datasets/synthetic/er_1000_02/diffusions/
+datasets/synthetic/er_1000_005/diffusions/
+datasets/synthetic/er_10000_02/diffusions/
+datasets/synthetic/er_10000_005/diffusions/
+datasets/synthetic/sf_1000_041_054_005/diffusions/
+datasets/synthetic/sf_10000_041_054_005/diffusions/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
