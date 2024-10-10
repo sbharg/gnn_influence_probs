@@ -7,6 +7,9 @@ datasets/synthetic/er_10000_02/
 datasets/synthetic/er_10000_005/
 
 test.ipynb
+test.txt
+notes/
+
 
 datasets/real/higgs/diffusions/
 datasets/real/ego-facebook/diffusions/
