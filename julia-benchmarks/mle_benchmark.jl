@@ -94,6 +94,8 @@ function parse_commandline()
 end
 
 function main()
+    BenchmarkTools.DEFAULT_PARAMETERS.samples = 1
+
     parsed_args = parse_commandline()
 
     g = load_graph(parsed_args["filepath"])
@@ -103,10 +105,16 @@ function main()
 
     println("M \tMAE \t\t\tTime")
     for i in [50, 100, 150, 200, 250]
+        start = time()
         c = cascades[1:g.n, 1:i]
-        a, t = BenchmarkTools.@btimed run_benchmark(g, cascades, T) setup=(g=$g; cascades=$c; T=$T) samples=3
+        a = run_benchmark(g, cascades, T)
+        t = time() - start
+        println(i, " \t", a, " \t", t, " s")
+
+        #c = cascades[1:g.n, 1:i]
+        #a, t = BenchmarkTools.@btimed run_benchmark(g, cascades, T) setup=(g=$g; cascades=$c; T=$T)
         #println("For M = ", i, ", MAE = ", a, ", time = ", t*1e-9, " s")
-        println(i, " \t", a, " \t", t*1e-9, " s")
+        #println(i, " \t", a, " \t", t*1e-9, " s")
     end
 end
 

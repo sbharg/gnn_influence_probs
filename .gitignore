@@ -26,6 +26,7 @@ datasets/synthetic/er_10000_02/diffusions/
 datasets/synthetic/er_10000_005/diffusions/
 datasets/synthetic/sf_1000_041_054_005/diffusions/
 datasets/synthetic/sf_10000_041_054_005/diffusions/
+datasets/real/twitter-congress/diffusions/
 
 
 # Byte-compiled / optimized / DLL files
