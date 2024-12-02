@@ -12,7 +12,6 @@ include("src/gradient_dmp_method.jl")
 
 function load_graph(path::String)
     M = MatrixMarket.mmread(path * "/graph.mtx")
-
     # Construct edge list from matrix
     data = SparseArrays.findnz(M)
     src = data[1]
@@ -60,8 +59,8 @@ function generate_cascades(path::String, n::Int64, M::Int64=250, T::Int64=12)
 end
 
 function run_benchmark(g, edges, cascades, M, T)
-    threshold = 1e-6
-    max_iter = 1000
+    threshold = 1e-7
+    max_iter = 10000
     iter_threshold = 400
 
     d = 0
@@ -95,8 +94,26 @@ function run_benchmark(g, edges, cascades, M, T)
     end
     
     # Comparison with true values
-    average_error_on_alphas = sum(abs.(values(merge(-, g.edgelist, g_temp.edgelist)))) / g.m
-    return average_error_on_alphas
+    average_error_on_alphas = sum(abs.(values(merge(-, g.edgelist, g_temp.edgelist)))) / g.m    
+    return average_error_on_alphas, g_temp.edgelist
+end
+
+function write_to_graph(edgelist, n, gname, k)
+    src = []
+    dst = []
+    probs = []
+    for (e, p) in edgelist
+        #println(e)
+        push!(src, e[1])
+        push!(dst, e[2])
+        p_new = convert(Float64, p)
+        push!(probs, p_new)
+    end
+
+    probs = convert(Array{Float64,1}, probs)
+    M = SparseArrays.sparse(src, dst, probs)
+    name = "results/slicer/$(gname)_$(k).mtx"
+    MatrixMarket.mmwrite(name, M)
 end
 
 @eval BenchmarkTools macro btimed(args...)
@@ -122,6 +139,10 @@ function parse_commandline()
             help = "Path to folder containing graph and cascades"
             arg_type = String
             required = true
+        "T"
+            help = "Max timestep"
+            arg_type = Int64
+            required = true
     end
 
     return parse_args(s)
@@ -131,21 +152,30 @@ function main()
     parsed_args = parse_commandline()
     g, edges = load_graph(parsed_args["filepath"])
     
-    T = 4
+    T = parsed_args["T"]
     M = 250
     cascades = generate_cascades(parsed_args["filepath"], g.n, M, T)
     
-    println("M \tMAE \t\t\tTime")
-    for i in [50, 100, 150, 200, 250]
+    io = open("results/slicer/slicer.txt", "a");  
+    print("M \tMAE \t\t\tTime\n")
+    gname = split(parsed_args["filepath"], "/")[end-1]
+    write(io, "\nGraph: $gname\n")
+    write(io, "M \tMAE \t\t\tTime\n")    
+    for i in [50] #[50, 100, 150, 200, 250]
         start = time()
         c = cascades[1:g.n, 1:i]
-        a = run_benchmark(g, edges, cascades, i, T)
+        a, probs = run_benchmark(g, edges, c, i, T)
         t = time() - start
 
+        #println(probs)
         #a, t = BenchmarkTools.@btimed run_benchmark(g, edges, cascades, M, T) setup=(g=$g; edges=$edges; cascades=$c; M=$i; T=$T) samples=1
         #println("For M = ", i, ", MAE = ", a, ", time = ", t*1e-9, " s")
-        println(i, " \t", a, " \t", t, " s")
+        res = "$i \t$a \t$t\n"
+        print(res)
+        write(io, res)  
+        write_to_graph(probs, g.n, gname, i)
     end
+    close(io);
 end
 
 main()

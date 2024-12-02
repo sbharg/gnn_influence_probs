@@ -72,7 +72,7 @@ end
     end)
 end
 
-function run_benchmark(g, cascades, T, threshold=1e-6, max_iter=1000)
+function run_benchmark(g, cascades, T, threshold=1e-6, max_iter=100)
     likelihood_edgelist = max_likelihood_params(g, cascades, T, threshold, max_iter)
 
     # Comparison with true values
@@ -88,6 +88,10 @@ function parse_commandline()
             help = "Path to folder containing graph and cascades"
             arg_type = String
             required = true
+        "T"
+            help = "Max timestep"
+            arg_type = Int64
+            required = true
     end
 
     return parse_args(s)
@@ -99,23 +103,30 @@ function main()
     parsed_args = parse_commandline()
 
     g = load_graph(parsed_args["filepath"])
-    T = 12
+    T = parsed_args["T"]
     M = 250
     cascades = generate_cascades(parsed_args["filepath"], g.n, M, T)
 
-    println("M \tMAE \t\t\tTime")
+    io = open("results/mle.txt", "a");  
+    print("M \tMAE \t\t\tTime\n")
+    gname = split(parsed_args["filepath"], "/")[end-1]
+    write(io, "\nGraph: $gname\n")
+    write(io, "M \tMAE \t\t\tTime\n");    
     for i in [50, 100, 150, 200, 250]
         start = time()
         c = cascades[1:g.n, 1:i]
-        a = run_benchmark(g, cascades, T)
+        a = run_benchmark(g, c, T)
         t = time() - start
-        println(i, " \t", a, " \t", t, " s")
+        res = "$i \t$a \t$t\n"
+        print(res)
+        write(io, res);    
 
         #c = cascades[1:g.n, 1:i]
         #a, t = BenchmarkTools.@btimed run_benchmark(g, cascades, T) setup=(g=$g; cascades=$c; T=$T)
         #println("For M = ", i, ", MAE = ", a, ", time = ", t*1e-9, " s")
         #println(i, " \t", a, " \t", t*1e-9, " s")
     end
+    close(io);
 end
 
 main()
