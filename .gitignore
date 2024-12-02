@@ -10,6 +10,7 @@ datasets/synthetic/er_10000_005/
 datasets/real/congress-twitter/
 datasets/synthetic/ba_1000_2/
 datasets/synthetic/ba_1000_4/
+datasets/synthetic/er_50_005/
 
 test.ipynb
 test.txt
@@ -20,11 +21,18 @@ datasets/real/higgs/diffusions/
 datasets/real/ego-facebook/diffusions/
 datasets/real/ego-twitter/diffusions/
 datasets/synthetic/er_100_01/diffusions/
+datasets/synthetic/er_100_015/diffusions/
+datasets/synthetic/er_100_005/diffusions/
+datasets/synthetic/er_100_02/diffusions/
 datasets/synthetic/er_1000_02/diffusions/
 datasets/synthetic/er_1000_005/diffusions/
 datasets/synthetic/er_10000_02/diffusions/
 datasets/synthetic/er_10000_005/diffusions/
+datasets/synthetic/er_250_01/diffusions/
+datasets/synthetic/er_250_005/diffusions/
+datasets/synthetic/ba_500_2/diffusions/
 datasets/synthetic/sf_1000_041_054_005/diffusions/
+datasets/synthetic/sf_1500_041_054_005/diffusions/
 datasets/synthetic/sf_10000_041_054_005/diffusions/
 datasets/real/twitter-congress/diffusions/
 
