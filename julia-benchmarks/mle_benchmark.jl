@@ -85,7 +85,7 @@ function write_to_graph(edgelist, n, gname, k)
     MatrixMarket.mmwrite(name, M)
 end
 
-function run_benchmark(g, cascades, T, threshold=1e-6, max_iter=100)
+function run_benchmark(g, cascades, T, threshold=1e-6, max_iter=1000)
     likelihood_edgelist = max_likelihood_params(g, cascades, T, threshold, max_iter)
 
     # Comparison with true values
@@ -113,6 +113,14 @@ function parse_commandline()
             help = "Increment in number of training cascades to test on. Runs algorithm with [kmin, kmin+delta, kmin+2*delta, ..., kmax] training cascades"
             arg_type = Int64
             default = 50
+        "--threshold", "-t"
+            help = "Threshold for convergence"
+            arg_type = Float64
+            default = 1e-6
+        "--maxiter", "-m"
+            help = "Maximum number of iterations"
+            arg_type = Int64
+            default = 1000
     end
 
     return parse_args(s)
@@ -135,7 +143,7 @@ function main()
     for i in range(start=kmin, step=delta, stop=kmax)
         start = time()
         c = cascades[1:g.n, 1:i]
-        a, probs = run_benchmark(g, c, T)
+        a, probs = run_benchmark(g, c, T, parsed_args["threshold"], parsed_args["maxiter"])
         t = time() - start
 
         res = "$i \t$a \t$t\n"

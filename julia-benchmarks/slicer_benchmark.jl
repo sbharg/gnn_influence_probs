@@ -69,9 +69,7 @@ function generate_cascades(path::String, n::Int64, M::Int64=250, T::Int64=12)
     return cascades, T
 end
 
-function run_benchmark(g, edges, cascades, M, T)
-    threshold = 1e-7
-    max_iter = 10000
+function run_benchmark(g, edges, cascades, M, T, threshold=1e-7, max_iter=10000)
     iter_threshold = 400
 
     d = 0
@@ -147,6 +145,14 @@ function parse_commandline()
             help = "Increment in number of training cascades to test on. Runs algorithm with [kmin, kmin+delta, kmin+2*delta, ..., kmax] training cascades"
             arg_type = Int64
             default = 50
+        "--threshold", "-t"
+            help = "Threshold for convergence"
+            arg_type = Float64
+            default = 1e-6
+        "--maxiter", "-m"
+            help = "Maximum number of iterations"
+            arg_type = Int64
+            default = 1000
     end
 
     return parse_args(s)
@@ -169,7 +175,7 @@ function main()
     for i in range(start=kmin, step=delta, stop=kmax)
         start = time()
         c = cascades[1:g.n, 1:i]
-        a, probs = run_benchmark(g, edges, c, i, T)
+        a, probs = run_benchmark(g, edges, c, i, T, parsed_args["threshold"], parsed_args["maxiter"])
         t = time() - start
 
         res = "$i \t$a \t$t\n"
