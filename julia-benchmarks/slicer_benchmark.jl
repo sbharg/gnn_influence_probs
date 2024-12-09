@@ -31,6 +31,17 @@ end
 
 function generate_cascades(path::String, n::Int64, M::Int64=250, T::Int64=12)
     cascades = zeros(Int64, n, M)
+    T = 0
+    for i in 1:M
+        c = path * "/diffusions/timestamps/$(i-1).txt"
+        time_len = 0
+        c_data = open(c) do file
+            for line in eachline(file)
+                time_len += 1
+            end
+        end
+        T = max(T, time_len)
+    end
 
     # Iterate through cascades
     for i in 1:M
@@ -55,7 +66,7 @@ function generate_cascades(path::String, n::Int64, M::Int64=250, T::Int64=12)
         end
         cascades[1:n, i] = p0
     end
-    return cascades
+    return cascades, T
 end
 
 function run_benchmark(g, edges, cascades, M, T)
@@ -116,21 +127,6 @@ function write_to_graph(edgelist, n, gname, k)
     MatrixMarket.mmwrite(name, M)
 end
 
-@eval BenchmarkTools macro btimed(args...)
-    _, params = prunekwargs(args...)
-    bench, trial, result = gensym(), gensym(), gensym()
-    trialmin, trialallocs = gensym(), gensym()
-    tune_phase = hasevals(params) ? :() : :($BenchmarkTools.tune!($bench))
-    return esc(quote
-        local $bench = $BenchmarkTools.@benchmarkable $(args...)
-        $BenchmarkTools.warmup($bench)
-        $tune_phase
-        local $trial, $result = $BenchmarkTools.run_result($bench)
-        local $trialmin = $BenchmarkTools.minimum($trial)
-        $result, $BenchmarkTools.time($trialmin)
-    end)
-end
-
 function parse_commandline()
     s = ArgParseSettings()
 
@@ -139,10 +135,18 @@ function parse_commandline()
             help = "Path to folder containing graph and cascades"
             arg_type = String
             required = true
-        "T"
-            help = "Max timestep"
+        "--kmin", "-i"
+            help = "Minimum number of training cascades"
             arg_type = Int64
-            required = true
+            default = 50
+        "--kmax", "-a"
+            help = "Maximum number of training cascades"
+            arg_type = Int64
+            default = 250
+        "--delta", "-d"
+            help = "Increment in number of training cascades to test on. Runs algorithm with [kmin, kmin+delta, kmin+2*delta, ..., kmax] training cascades"
+            arg_type = Int64
+            default = 50
     end
 
     return parse_args(s)
@@ -150,29 +154,28 @@ end
 
 function main()
     parsed_args = parse_commandline()
+
     g, edges = load_graph(parsed_args["filepath"])
+    kmin = parsed_args["kmin"]
+    kmax = parsed_args["kmax"]
+    delta = parsed_args["delta"]
+    cascades, T = generate_cascades(parsed_args["filepath"], g.n, kmax)
     
-    T = parsed_args["T"]
-    M = 250
-    cascades = generate_cascades(parsed_args["filepath"], g.n, M, T)
-    
-    io = open("results/slicer/slicer.txt", "a");  
+    io = open("results/slicer/slicer.txt", "a")
     print("M \tMAE \t\t\tTime\n")
     gname = split(parsed_args["filepath"], "/")[end-1]
     write(io, "\nGraph: $gname\n")
-    write(io, "M \tMAE \t\t\tTime\n")    
-    for i in [50] #[50, 100, 150, 200, 250]
+    write(io, "M\t\tMAE\t\t\t\t\t\tTime\n")    
+    for i in range(start=kmin, step=delta, stop=kmax)
         start = time()
         c = cascades[1:g.n, 1:i]
         a, probs = run_benchmark(g, edges, c, i, T)
         t = time() - start
 
-        #println(probs)
-        #a, t = BenchmarkTools.@btimed run_benchmark(g, edges, cascades, M, T) setup=(g=$g; edges=$edges; cascades=$c; M=$i; T=$T) samples=1
-        #println("For M = ", i, ", MAE = ", a, ", time = ", t*1e-9, " s")
         res = "$i \t$a \t$t\n"
         print(res)
-        write(io, res)  
+        res_write = "$i\t\t$a\t\t$t\n"
+        write(io, res_write)  
         write_to_graph(probs, g.n, gname, i)
     end
     close(io);
