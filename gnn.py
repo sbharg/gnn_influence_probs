@@ -142,11 +142,13 @@ def train_cascade_gnn(model, edge_index, cascades, adj_list, num_epochs=100, bat
     
     Args:
         model: CascadeGNN model
-        num_nodes: Number of nodes in the graph
         edge_index: Tensor of shape [2, num_edges] containing edge indices
         cascades: List of cascades, where each cascade is a list of lists
-        num_epochs: Number of training epochs
-        lr: Learning rate
+        adj_list: Adjaceny List of the graph
+        num_epochs: Number of training epochs (default = 100)
+        batch_size: Size of batch used to train (default = 50)
+        lr: Learning rate (default = 0.001)
+        verbose: Print loss function info over epochs (default = True)
     """
     model.train()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
@@ -182,6 +184,25 @@ def create_dataset(G: nx.DiGraph):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filepath", help="Path to folder containing graph and cascades")
+    parser.add_argument("-i", "--kmin", type=int, 
+        help="Minimum number of training cascades (default: %(default)s)", default=50)
+    parser.add_argument("-a", "--kmax", type=int, 
+        help="Maximum number of training cascades (default: %(default)s)", default=250)
+    parser.add_argument("-d", "--delta", type=int, 
+        help="Runs method with [kmin, kmin+delta, kmin+2*delta, ..., kmax] training cascades (default: %(default)s)", 
+        default=50)
+    parser.add_argument("-e", "--epochs", type=int, 
+        help="Number of epochs to train for (default: %(default)s)", 
+        default=35)
+    parser.add_argument("-l", "--learningrate", type=int, 
+        help="Learning rate for training (default: %(default)s)", 
+        default=0.01)
+    parser.add_argument("-n", "--numlayers", type=int, 
+        help="Number of GAT layers in the GNN (default: %(default)s)", 
+        default=2)
+    parser.add_argument("-b", "--embeddingdim", type=int, 
+        help="The dimension of the edge embeddings (default: %(default)s)", 
+        default=16)
     args = parser.parse_args()
 
     path = Path(args.filepath)
@@ -190,7 +211,7 @@ if __name__ == "__main__":
         G = nx.from_scipy_sparse_array(sp.io.mmread(fh), create_using=nx.DiGraph)
 
     cascades = []
-    for i in range(250):
+    for i in range(args.kmax):
         with open(path / f"diffusions/timestamps/{i}.txt", "r") as fh:
             cascade = []
             for line in fh:
@@ -203,7 +224,7 @@ if __name__ == "__main__":
 
     l1_errors = []
     times = []
-    cascade_sizes = [50, 100, 150, 200, 250]
+    cascade_sizes = range(args.kmin, args.kmax+1, args.delta)
 
     torch.manual_seed(28)
     results_path = Path(f"results/gnn/")
@@ -216,9 +237,9 @@ if __name__ == "__main__":
 
     for k in cascade_sizes:
         start = time.time()
-        model = CascadeGNN(n, m, hidden_dim=16, num_layers=2)
+        model = CascadeGNN(n, m, hidden_dim=args.embeddingdim, num_layers=args.numlayers)
         #trained_model = 
-        train_cascade_gnn(model, edge_index, cascades[:k], adj_list, num_epochs=40, lr=0.01, verbose=False)
+        train_cascade_gnn(model, edge_index, cascades[:k], adj_list, num_epochs=args.epochs, lr=args.learningrate, verbose=False)
         end = time.time()
         times.append(end-start)
 
