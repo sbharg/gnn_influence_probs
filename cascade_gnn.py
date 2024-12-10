@@ -246,12 +246,13 @@ if __name__ == "__main__":
         model.eval()
         edge_probs = model(edge_index)
         residuals = []
-        H = nx.DiGraph()
+        H = G
         for i, e in enumerate(G.edges()):
             u, v = e
             p = G[u][v]['weight']
             residuals.append(abs(p - edge_probs[e].item()))
-            H.add_edge(u, v, weight=edge_probs[e].item())
+            #H.add_edge(u, v, weight=edge_probs[e].item())
+            H[u][v]['weight'] = edge_probs[e].item()
 
         l1_err = sum(residuals) / len(residuals)
         l1_errors.append(l1_err)
