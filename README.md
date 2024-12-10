@@ -27,15 +27,67 @@ run `julia julia-benchmarks/packages.jl` to install all the required dependencie
 
 ### Cascade Generator
 
+Generates training cascades according to the ground truth IC model defined on a network. For each cascade generated, 
+both the timestamp and edgelist version is logged. The timestamp version the nodes activated at each timestamp, 
+where the nodes listed on the i'th line indicate the nodes activated during the i'th timestamp. The edgelist version 
+list all the edges that were successfully activated and passed information from their source node to their destination node. 
+
+Usage: 
+```
+uv run cascade_generator.py [-h] [-n NCASCADES] [-s SEEDSIZE] filepath
+```
+
+required arguments:
+- `filepath`: Path to folder containing a graph.mtx file with ground truth IC probabilities (eg. datasets/real/ego-facebook/)
+
+optional arguments:
+- `-n, --ncascades <NCASCADES>`
+    - Number of cascades to generate (default: 250)
+- `-s, --seedsize <SEEDSIZE>`
+    - Size of seed set to start cascades from (default: 1)
+- `-h, --help`           
+    - show this help message and exit
+
 ### Cascade GNN
+
+Runs the GNN based method. 
+Prints out and logs the average $L_1$ error and time taken for the method 
+for each number of training cascades in the range specified in the `results/gnn/gnn.txt` file. 
+Also saves the estimated probabilities on each edge as an `.mtx` file in the `results/gnn` folder. 
+
+Usage:
+```
+uv run cascade_gnn.py [-h] [-i KMIN] [-a KMAX] [-d DELTA] [-e EPOCHS] [-l LEARNINGRATE] [-n NUMLAYERS] [-b EMBEDDINGDIM] filepath
+```
+required arguments:
+- `filepath`: Path to folder containing graph and cascades (ex. datasets/real/ego-facebook/)
+
+optional arguments:
+- `-i, --kmin <KMIN>`  
+    - Minimum number of training cascades (default: 50)
+- `-a, --kmax <KMAX>`  
+    - Maximum number of training cascades (default: 250)
+- `-d, --delta <DELTA>`
+    - Runs method with [kmin, kmin+delta, kmin+2*delta, ..., kmax] training cascades (default: 50)
+- `-e, --epochs <EPOCHS>`
+    - Number of epochs to train for (default: 35)
+- `-l, --learningrate <LEARNINGRATE>`
+    - Learning rate for training (default: 0.01)
+- `-n, --numlayers <NUMLAYERS>`
+    - Number of GAT layers in the GNN (default: 2)
+- `-b, --embeddingdim <EMBEDDINGDIM>`
+    - The dimension of the edge embeddings (default: 16)
+- `-h, --help `           
+    - show this help message and exit
 
 ## Usage (Julia Scripts)
 
 ### MLE Benchmark
 
-Runs the Convex Programming based Maximum Likelihood Estimation (MLE) based method. 
+Runs the Convex Programming based Maximum Likelihood Estimation (MLE) method. 
 Prints out and logs the average $L_1$ error and time taken for the algorithm 
-for each number of training cascades in the range specified. 
+for each number of training cascades in the range specified in the `results/mle/mle.txt` file. 
+Also saves the estimated probabilities on each edge as an `.mtx` file in the `results/mle` folder. 
 
 Usage: 
 ```
@@ -63,7 +115,8 @@ optional arguments:
 
 Runs the Dynamic Message Passing (SLICER) based method. 
 Prints out and logs the average $L_1$ error and time taken for the algorithm 
-for each number of training cascades in the range specified. 
+for each number of training cascades in the range specified in the `results/slicer/slicer.txt` file. 
+Also saves the estimated probabilities on each edge as an `.mtx` file in the `results/slicer` folder. 
 
 Usage: 
 ```
