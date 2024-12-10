@@ -44,9 +44,9 @@ the IC model parameter associated with it. All graphs are stored within the `dat
 ### Cascade Generator
 
 Generates training cascades according to the ground truth IC model defined on a network. For each cascade generated, 
-both the timestamp and edgelist version is logged. The timestamp version the nodes activated at each timestamp, 
+both the timestamp and edgelist version is logged. The timestamp version lists the nodes activated at each timestamp, 
 where the nodes listed on the i'th line indicate the nodes activated during the i'th timestamp. The edgelist version 
-list all the edges that were successfully activated and passed information from their source node to their destination node. 
+lists all the edges that were successfully activated and passed information from their source node to their destination node. 
 
 Usage: 
 ```
