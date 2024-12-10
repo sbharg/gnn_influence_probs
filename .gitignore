@@ -1,6 +1,7 @@
 graphs/
 .DS_Store
 .python-version
+.vscode/
 
 dynamic-message-passing/
 
@@ -11,6 +12,7 @@ datasets/real/congress-twitter/
 datasets/synthetic/ba_1000_2/
 datasets/synthetic/ba_1000_4/
 datasets/synthetic/er_50_005/
+datasets/synthetic/er_50_001/
 
 test.ipynb
 test.txt
