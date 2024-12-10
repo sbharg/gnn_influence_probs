@@ -1,6 +1,7 @@
 #!/bin/sh
 
-#python3 gnn.py datasets/synthetic/er_100_02/
+dataset=datasets/synthetic/er_50_005/ 
 
-julia julia-benchmarks/slicer_benchmark.jl datasets/real/ego-facebook/ 31
-#julia julia-benchmarks/mle_benchmark.jl datasets/real/ego-facebook/ 31
+julia julia-benchmarks/slicer_benchmark.jl $dataset
+julia julia-benchmarks/mle_benchmark.jl $dataset 
+uv run gnn.py $dataset 
