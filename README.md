@@ -7,6 +7,11 @@ Contains scripts to
 - Run the GNN-based method developed for the project. 
 - Run two baseline algorithms (SLICER and MLE) described in prior work by Wilinski and Lokhov [1]. 
 
+We also test the quality of the learned IC model parameters by using them in a 
+simple downstream application of the Influence Maximization problem. In particular, we 
+run the IMM algorithm [2] to find $k$ influential nodes in the graph with the learned parameters, and 
+compare them against the $k$ influential nodes with the ground truth parameters.  
+
 ## Requirements
 
 The GNN method is written in Python and was tested with version `python3.12.7`. 
@@ -18,10 +23,21 @@ Alternatively, you can set up a python virtual environment using
 `python3 -m venv`, active it using `source .venv/bin/activate`, and then run `pip3 install -r requirements.txt`. 
 
 The two baseline algorithms are written in [Julia](https://julialang.org/downloads/) and 
-were tested with version `v1.11.21`. The source code was taken and slightly modified from
+were tested with version `v1.11.21`. The source code was slightly modified from
 [the repository](https://github.com/mateuszwilinski/dynamic-message-passing) linked in the 
 paper by Wilinski and Lokhov [1]. Once Julia is installed, you can 
 run `julia julia-benchmarks/packages.jl` to install all the required dependencies to run the algorithms. 
+
+The IMM algorithm is written in C++11 and requires version `4.8.1` or above of the g++ compiler to compile. 
+The original source code was downloaded in [the repository](https://sourceforge.net/projects/im-imm/) linked in the 
+IMM paper by Tang, Shi, and Xiao [2]. 
+
+## Graph Format
+
+We use the [Matrix Market](https://math.nist.gov/MatrixMarket/formats.html]) coordinate format to 
+represent and store all the graphs used. We consider only directed graphs. The weight of an edge represents 
+the IC model parameter associated with it. All graphs are stored within the `datasets/` folder in the format of 
+`[name]/graph.mtx` (ex. `datasets/real/ego-facebook/graph.mtx)`. 
 
 ## Usage (Python Scripts)
 
@@ -140,7 +156,12 @@ optional arguments:
 - `-h, --help`
     - show this help message and exit
 
+## Usage (IMM Experiment)
+
 ## References
 
 [1] M. Wilinski and A. Lokhov. Prediction-centric learning of independent cascade dynamics from partial observations. In Proceedings of ICML 2021,
 pages 11182–11192, 2021. [arxiv:2007.06557](https://arxiv.org/abs/2007.06557). 
+
+[2] Y. Tang, Y. Shi, and X. Xiao. Influence maximization in near-linear time: A martingale approach. In Proceedings of SIGMOD 2015, pages 1539–
+1554, 2015. [doi:10.1145/2723372.2723734](https://doi.org/10.1145/2723372.2723734).
