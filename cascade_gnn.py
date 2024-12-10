@@ -68,8 +68,8 @@ def compute_cascade_likelihood(edge_probs, adj_list, cascade, eps=1e-6):
     Compute the negative log likelihood of observing a cascade given edge probabilities
     
     Args:
-        num_nodes: Number of nodes in the graph
         edge_probs: Dictionary mapping (source, target) tuples to probabilities
+        adj_list: Adjaceny List of the graph
         cascade: List of lists, where cascade[i] contains nodes activated at time i
         eps: Small value to prevent log(0)
     
@@ -120,10 +120,10 @@ def compute_loss(edge_probs, adj_list, cascades, eps=1e-6):
   Compute the negative log-likelihood loss for multiple cascades.
   
   Args:
-    num_nodes: Number of nodes in the
     edge_probs: Tensor of predicted edge probabilities
-    edge_index: Tensor of shape [2, num_edges] containing edge indices
+    adj_list: Adjaceny List of the graph
     cascades: List of cascades, where each cascade is a list of lists of activated nodes
+    eps: Small value to prevent log(0)
   
   Returns:
     loss: Negative log-likelihood loss
