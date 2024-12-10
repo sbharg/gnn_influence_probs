@@ -156,7 +156,13 @@ optional arguments:
 - `-h, --help`
     - show this help message and exit
 
-## Usage (IMM Experiment)
+## Usage (InfMax Experiment)
+
+To recreate the InfMax Experiment on the ego-facebook graph, run the first three cells in the `imm_experiments.ipynb` file to 
+generate the graphs in the format required for the IMM code. Then run the `IMM/imm_experiments.sh` file to generate the 
+seed sets for each method. After manually importing the seed sets generated, 
+running the remaining cells of the `imm_experiments.ipynb` file will calculate the 
+expected spread of the seed sets of each method and list them. 
 
 ## References
 
