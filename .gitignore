@@ -2,6 +2,7 @@ graphs/
 .DS_Store
 .python-version
 .vscode/
+figs.ipynb
 
 dynamic-message-passing/
 
